@@ -1,23 +1,22 @@
 const express = require('express');
-const mongoose = require('mongoose');
-const app = express();
-const port = 3000;
+const { check, validationResult } = require('express-validator');
 
+const app = express();
 app.use(express.json());
 
-mongoose.connect('your_mongodb_connection_string', { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('Connected to MongoDB'))
-  .catch(err => console.error('Could not connect to MongoDB', err));
+app.post('/api/users', [
+  check('name').notEmpty().withMessage('Name is required'),
+  check('email').isEmail().withMessage('Please include a valid email'),
+  check('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long')
+], (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
+  // If no errors, proceed with user registration
+  res.status(200).json(req.body);
 });
 
-app.post('/api/users', (req, res) => {
-  console.log(req.body);
-  res.json(req.body);
-});
-
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
-});
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
