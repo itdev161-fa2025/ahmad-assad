@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "express": "^4.21.0",
+    "express-validator": "^7.2.0"
+  },
+  "scripts": {
+    "server": "node server.js"
+  }
+}
