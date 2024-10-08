@@ -1,3 +1,4 @@
 {
-    "mongoURI": "mongodb+srv://ahmadassad:Sadeel1245@itdev161.e3aaz.mongodb.net/?retryWrites=true&w=majority&appName=itdev161"
+    "mongoURI": "mongodb+srv://ahmadassad:Sadeel1245@itdev161.e3aaz.mongodb.net/?retryWrites=true&w=majority&appName=itdev161",
+     "jwtSecret": "secret"
   }
