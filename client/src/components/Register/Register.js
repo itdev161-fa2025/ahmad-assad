@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
@@ -36,8 +36,8 @@ const Register = () => {
   };
 
   return (
-    <div className="register-container">
-      <h1>Register</h1>
+    <div>
+      <h2>Register</h2>
       <form onSubmit={onSubmit}>
         <div>
           <input

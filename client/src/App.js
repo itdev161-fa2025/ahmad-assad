@@ -1,4 +1,7 @@
 import { Route, Routes, Link } from 'react-router-dom';
+import Home from './components/Home/Home';
+import Login from './components/Login/Login';
+import Register from './components/Register/Register';
 import './App.css';
 
 function App() {
@@ -14,9 +17,9 @@ function App() {
       </header>
       <main>
         <Routes>
-          <Route path="/" element={<div>Home Page</div>} />
-          <Route path="/register" element={<div>Register Page</div>} />
-          <Route path="/login" element={<div>Login Page</div>} />
+          <Route path="/" element={<Home />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
         </Routes>
       </main>
     </div>
