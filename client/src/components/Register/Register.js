@@ -1,78 +1,91 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const Register = () => {
-  const navigate = useNavigate();
-  const [formData, setFormData] = useState({
+  const [userData, setUserData] = useState({
     name: '',
     email: '',
-    password: ''
+    password: '',
+    passwordConfirm: ''
   });
 
-  const { name, email, password } = formData;
+  const { name, email, password, passwordConfirm } = userData;
 
   const onChange = e => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+    setUserData({
+      ...userData,
+      [e.target.name]: e.target.value
+    });
+  }
 
-  const onSubmit = async e => {
-    e.preventDefault();
-    
-    try {
-      const response = await fetch('/api/users', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      });
-
-      if (response.ok) {
-        navigate('/');
-      }
-    } catch (error) {
-      console.error('Error registering user:', error);
+  const register = async () => {
+    if (password !== passwordConfirm) {
+      console.log('Passwords do not match');
     }
-  };
+    else {
+      const newUser = {
+        name: name,
+        email: email,
+        password: password
+      }
+
+      try {
+        const config = {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+
+        const body = JSON.stringify(newUser);
+        const res = await axios.post('/api/users', body, config);
+        console.log(res.data);
+      } catch (error) {
+        console.error(error.response.data);
+        return;
+      }
+    }
+  }
 
   return (
     <div>
       <h2>Register</h2>
-      <form onSubmit={onSubmit}>
-        <div>
-          <input
-            type="text"
-            placeholder="Name"
-            name="name"
-            value={name}
-            onChange={onChange}
-            required
-          />
-        </div>
-        <div>
-          <input
-            type="email"
-            placeholder="Email Address"
-            name="email"
-            value={email}
-            onChange={onChange}
-            required
-          />
-        </div>
-        <div>
-          <input
-            type="password"
-            placeholder="Password"
-            name="password"
-            value={password}
-            onChange={onChange}
-            required
-          />
-        </div>
-        <button type="submit">Register</button>
-      </form>
+      <div>
+        <input
+          type="text"
+          placeholder="Name"
+          name="name"
+          value={name}
+          onChange={e => onChange(e)} />
+      </div>
+      <div>
+        <input
+          type="text"
+          placeholder="Email"
+          name="email"
+          value={email}
+          onChange={e => onChange(e)} />
+      </div>
+      <div>
+        <input
+          type="password"
+          placeholder="Password"
+          name="password"
+          value={password}
+          onChange={e => onChange(e)} />
+      </div>
+      <div>
+        <input
+          type="password"
+          placeholder="Confirm Password"
+          name="passwordConfirm"
+          value={passwordConfirm}
+          onChange={e => onChange(e)} />
+      </div>
+      <div>
+        <button onClick={() => register()}>Register</button>
+      </div>
     </div>
-  );
-};
+  )
+}
 
 export default Register;
