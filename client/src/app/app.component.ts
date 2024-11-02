@@ -1,8 +1,15 @@
 import { Component } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
-import { NgFor } from '@angular/common';
-import { RouterOutlet } from '@angular/router'; // Add this import
+import { NgFor, DatePipe } from '@angular/common';  // Add DatePipe
+import { RouterOutlet } from '@angular/router';
+
+interface Post {
+  id: number;
+  title: string;
+  body: string;
+  createdDate: Date;
+}
 
 @Component({
   selector: 'app-root',
@@ -10,20 +17,32 @@ import { RouterOutlet } from '@angular/router'; // Add this import
   styleUrls: ['./app.component.css'],
   standalone: true,
   imports: [
-    MatCardModule, 
-    MatButtonModule, 
+    MatCardModule,
+    MatButtonModule,
     NgFor,
-    RouterOutlet  // Add this to imports
+    RouterOutlet,
+    DatePipe     // Add DatePipe to imports
   ]
 })
 export class AppComponent {
   title = 'Your App Title';
-  posts = [
-    { id: 1, title: 'First Post', body: 'This is the first post content' },
-    { id: 2, title: 'Second Post', body: 'This is the second post content' }
+  
+  posts: Post[] = [
+    { 
+      id: 1, 
+      title: 'First Post', 
+      body: 'This is the first post content',
+      createdDate: new Date()
+    },
+    { 
+      id: 2, 
+      title: 'Second Post', 
+      body: 'This is the second post content',
+      createdDate: new Date()
+    }
   ];
 
-  editPost(post: any) {
+  editPost(post: Post) {
     console.log('Edit post:', post);
   }
 
