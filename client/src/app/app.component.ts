@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
-import { NgFor, DatePipe } from '@angular/common';  // Add DatePipe
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatIconModule } from '@angular/material/icon';
+import { NgFor, DatePipe } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
-
 interface Post {
   id: number;
   title: string;
@@ -19,9 +20,11 @@ interface Post {
   imports: [
     MatCardModule,
     MatButtonModule,
+    MatToolbarModule,
+    MatIconModule,
     NgFor,
     RouterOutlet,
-    DatePipe     // Add DatePipe to imports
+    DatePipe
   ]
 })
 export class AppComponent {
