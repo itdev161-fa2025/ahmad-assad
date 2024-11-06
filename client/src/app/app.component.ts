@@ -51,15 +51,13 @@ export class AppComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.authService.authenticateUser().subscribe();
+    // Remove the subscribe call since authenticateUser handles it internally
+    this.authService.authenticateUser();
   }
-  
 
   logOut() {
     localStorage.removeItem('token');
-    
     this.authService.authenticateUser();
-    
     this.router.navigate(['/login']);
   }
 }
