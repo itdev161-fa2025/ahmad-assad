@@ -1,0 +1,12 @@
+.post-card {
+    margin-bottom: 20px;
+    max-width: 600px;
+  }
+  
+  mat-card-actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+  .example-spacer {
+    flex: 1 1 auto;
+  }
