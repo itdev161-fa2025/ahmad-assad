@@ -16,29 +16,32 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  authenticateUser(): Observable<any> {  // Changed return type to Observable<any>
+  // Add this login method that returns an Observable
+  login(email: string, password: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/login`, { email, password });
+  }
+
+  authenticateUser(): void {
     const token = localStorage.getItem('token');
     
     if (!token) {
       this.clearAuthState();
-      return new Observable(subscriber => subscriber.complete());  // Return empty Observable
+      return;
     }
 
     const headers = new HttpHeaders().set('x-auth-token', token);
 
-    return this.http.get(`${this.apiUrl}/auth/user`, { headers })
-      .pipe(
-        tap({
-          next: (user) => {
-            this.userSubject.next(user);
-            this.authStatusSubject.next(true);
-          },
-          error: (error) => {
-            console.error('Authentication error:', error);
-            this.clearAuthState();
-          }
-        })
-      );
+    this.http.get(`${this.apiUrl}/auth/user`, { headers })
+      .subscribe({
+        next: (user) => {
+          this.userSubject.next(user);
+          this.authStatusSubject.next(true);
+        },
+        error: (error) => {
+          console.error('Authentication error:', error);
+          this.clearAuthState();
+        }
+      });
   }
 
   private clearAuthState(): void {
