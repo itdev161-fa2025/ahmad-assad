@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
-import { tap, catchError } from 'rxjs/operators';
+import { tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -14,35 +14,37 @@ export class AuthService {
   user$ = this.userSubject.asObservable();
   authStatus$ = this.authStatusSubject.asObservable();
 
-  constructor(private http: HttpClient) {
-    // Check authentication status on service initialization
-    this.authenticateUser();
-  }
+  constructor(private http: HttpClient) {}
 
-  authenticateUser(): void {
+  authenticateUser(): Observable<any> {  // Changed return type to Observable<any>
     const token = localStorage.getItem('token');
     
     if (!token) {
-      this.authStatusSubject.next(false);
-      this.userSubject.next(null);
-      return;
+      this.clearAuthState();
+      return new Observable(subscriber => subscriber.complete());  // Return empty Observable
     }
 
     const headers = new HttpHeaders().set('x-auth-token', token);
 
-    this.http.get(`${this.apiUrl}/auth/user`, { headers })
-      .subscribe({
-        next: (user) => {
-          this.userSubject.next(user);
-          this.authStatusSubject.next(true);
-        },
-        error: (error) => {
-          console.error('Authentication error:', error);
-          localStorage.removeItem('token');
-          this.userSubject.next(null);
-          this.authStatusSubject.next(false);
-        }
-      });
+    return this.http.get(`${this.apiUrl}/auth/user`, { headers })
+      .pipe(
+        tap({
+          next: (user) => {
+            this.userSubject.next(user);
+            this.authStatusSubject.next(true);
+          },
+          error: (error) => {
+            console.error('Authentication error:', error);
+            this.clearAuthState();
+          }
+        })
+      );
+  }
+
+  private clearAuthState(): void {
+    localStorage.removeItem('token');
+    this.userSubject.next(null);
+    this.authStatusSubject.next(false);
   }
 
   isAuthenticated(): boolean {

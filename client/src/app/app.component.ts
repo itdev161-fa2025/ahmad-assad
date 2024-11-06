@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { AuthService } from './services/auth.services';
@@ -24,7 +24,7 @@ import { AuthService } from './services/auth.services';
       </ng-container>
       <ng-container *ngIf="authService.authStatus$ | async">
         <span>Welcome, {{(authService.user$ | async)?.name}}</span>
-        <button mat-button (click)="logout()">Logout</button>
+        <button mat-button (click)="logOut()">Logout</button>
       </ng-container>
     </mat-toolbar>
     <div class="container">
@@ -45,13 +45,21 @@ import { AuthService } from './services/auth.services';
 export class AppComponent implements OnInit {
   title = 'Blog Platform';
 
-  constructor(public authService: AuthService) {}
+  constructor(
+    public authService: AuthService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
+    this.authService.authenticateUser().subscribe();
   }
+  
 
-  logout() {
+  logOut() {
     localStorage.removeItem('token');
-    this.authService.authenticateUser(); 
+    
+    this.authService.authenticateUser();
+    
+    this.router.navigate(['/login']);
   }
 }
