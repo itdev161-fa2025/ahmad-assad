@@ -1,5 +1,7 @@
 const express = require('express');
 const { check, validationResult } = require('express-validator');
+const connectDB = require('./config/db');
+const auth = require('./middleware/auth');
 
 const User = require('./models/User');
 const bcrypt = require('bcryptjs');
@@ -8,7 +10,22 @@ const jwt = require('jsonwebtoken');
 const config = require('config');
 
 const app = express();
-app.use(express.json());
+
+connectDB();
+
+app.use(express.json({ extended: false }));
+app.use('/api/users', require('./routes/api/users'));
+app.use('/api/auth', require('./routes/api/auth'));
+
+app.get('/api/auth/user', auth, async (req, res) => {
+  try {
+      const user = await User.findById(req.user.id).select('-password');
+      res.json(user);
+  } catch (err) {
+      console.error(err.message);
+      res.status(500).send('Server Error');
+  }
+});
 
 app.post(
   '/api/users',
@@ -64,5 +81,5 @@ app.post(
   }
 );
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
