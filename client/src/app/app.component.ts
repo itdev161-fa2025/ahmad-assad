@@ -1,55 +1,57 @@
-import { Component } from '@angular/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatIconModule } from '@angular/material/icon';
-import { NgFor, DatePipe } from '@angular/common';
-import { RouterOutlet } from '@angular/router';
-interface Post {
-  id: number;
-  title: string;
-  body: string;
-  createdDate: Date;
-}
+import { MatButtonModule } from '@angular/material/button';
+import { AuthService } from './services/auth.services';
 
 @Component({
   selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css'],
   standalone: true,
   imports: [
-    MatCardModule,
-    MatButtonModule,
+    CommonModule,
+    RouterModule,
     MatToolbarModule,
-    MatIconModule,
-    NgFor,
-    RouterOutlet,
-    DatePipe
-  ]
-})
-export class AppComponent {
-  title = 'Your App Title';
-  
-  posts: Post[] = [
-    { 
-      id: 1, 
-      title: 'First Post', 
-      body: 'This is the first post content',
-      createdDate: new Date()
-    },
-    { 
-      id: 2, 
-      title: 'Second Post', 
-      body: 'This is the second post content',
-      createdDate: new Date()
+    MatButtonModule
+  ],
+  template: `
+    <mat-toolbar color="primary">
+      <span>{{title}}</span>
+      <span class="spacer"></span>
+      <ng-container *ngIf="!(authService.authStatus$ | async)">
+        <button mat-button routerLink="/register">Register</button>
+        <button mat-button routerLink="/login">Login</button>
+      </ng-container>
+      <ng-container *ngIf="authService.authStatus$ | async">
+        <span>Welcome, {{(authService.user$ | async)?.name}}</span>
+        <button mat-button (click)="logout()">Logout</button>
+      </ng-container>
+    </mat-toolbar>
+    <div class="container">
+      <router-outlet></router-outlet>
+    </div>
+  `,
+  styles: [`
+    .spacer {
+      flex: 1 1 auto;
     }
-  ];
+    .container {
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+  `]
+})
+export class AppComponent implements OnInit {
+  title = 'Blog Platform';
 
-  editPost(post: Post) {
-    console.log('Edit post:', post);
+  constructor(public authService: AuthService) {}
+
+  ngOnInit() {
   }
 
-  deletePost(id: number) {
-    console.log('Delete post:', id);
+  logout() {
+    localStorage.removeItem('token');
+    this.authService.authenticateUser(); 
   }
 }
