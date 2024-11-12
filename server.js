@@ -162,5 +162,20 @@ app.post(
     }
 );
 
+app.get(
+    '/api/posts',
+    authMiddleware, 
+    async (req, res) => {
+        try {
+            const posts = await Post.find().sort({ date: -1 });
+
+            res.status(200).json(posts);
+        } catch (error) {
+            console.error(error.message);
+            res.status(500).json({ msg: 'Server error' });
+        }
+    }
+);
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
