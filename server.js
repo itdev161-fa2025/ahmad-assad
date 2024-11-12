@@ -177,5 +177,31 @@ app.get(
     }
 );
 
+app.get(
+    '/api/posts/:id',
+    authMiddleware, 
+    async (req, res) => {
+        try {
+            const { id } = req.params;
+
+            const post = await Post.findById(id);
+
+            if (!post) {
+                return res.status(404).json({ msg: 'Post not found' });
+            }
+
+            res.status(200).json(post);
+        } catch (error) {
+            console.error(error.message);
+
+            if (error.kind === 'ObjectId') {
+                return res.status(400).json({ msg: 'Invalid post ID' });
+            }
+
+            res.status(500).json({ msg: 'Server error' });
+        }
+    }
+);
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
