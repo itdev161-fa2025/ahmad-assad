@@ -11,15 +11,12 @@ const config = require('config');
 
 const app = express();
 
-// Connect Database
 connectDB();
 
-// Init Middleware
 app.use(express.json({ extended: false }));
 app.use('/api/users', require('./routes/api/users'));
 app.use('/api/auth', require('./routes/api/auth'));
 
-// Helper function to generate and return token
 const returnToken = (user, res) => {
     const payload = {
         user: {
@@ -38,7 +35,6 @@ const returnToken = (user, res) => {
     );
 };
 
-// Get authorized user
 app.get('/api/auth/user', auth, async (req, res) => {
     try {
         const user = await User.findById(req.user.id).select('-password');
@@ -49,7 +45,6 @@ app.get('/api/auth/user', auth, async (req, res) => {
     }
 });
 
-// Register user
 app.post(
     '/api/users',
     [
@@ -81,7 +76,6 @@ app.post(
 
             await user.save();
             
-            // Use refactored token function
             returnToken(user, res);
 
         } catch (error) {
@@ -91,7 +85,6 @@ app.post(
     }
 );
 
-// Login user
 app.post(
     '/api/login',
     [
@@ -107,19 +100,16 @@ app.post(
         const { email, password } = req.body;
 
         try {
-            // Check if user exists
             let user = await User.findOne({ email });
             if (!user) {
                 return res.status(400).json({ errors: [{ msg: 'Invalid credentials' }] });
             }
 
-            // Verify password
             const isMatch = await bcrypt.compare(password, user.password);
             if (!isMatch) {
                 return res.status(400).json({ errors: [{ msg: 'Invalid credentials' }] });
             }
 
-            // Return token
             returnToken(user, res);
         } catch (err) {
             console.error(err.message);
@@ -223,6 +213,45 @@ app.delete(
             await post.deleteOne();
 
             res.status(200).json({ msg: 'Post deleted successfully' });
+        } catch (error) {
+            console.error(error.message);
+
+            if (error.kind === 'ObjectId') {
+                return res.status(400).json({ msg: 'Invalid post ID' });
+            }
+
+            res.status(500).json({ msg: 'Server error' });
+        }
+    }
+);
+
+app.put(
+    '/api/posts/:id',
+    authMiddleware, 
+    async (req, res) => {
+        try {
+            const { id } = req.params;
+
+            
+            const { title, body } = req.body;
+
+            const post = await Post.findById(id);
+
+            if (!post) {
+                return res.status(404).json({ msg: 'Post not found' });
+            }
+
+            
+            if (post.user.toString() !== req.user.id) {
+                return res.status(401).json({ msg: 'User not authorized to update this post' });
+            }
+
+            if (title) post.title = title;
+            if (body) post.body = body;
+
+            const updatedPost = await post.save();
+
+            res.status(200).json(updatedPost);
         } catch (error) {
             console.error(error.message);
 
