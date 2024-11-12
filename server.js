@@ -203,5 +203,37 @@ app.get(
     }
 );
 
+app.delete(
+    '/api/posts/:id',
+    authMiddleware, 
+    async (req, res) => {
+        try {
+            const { id } = req.params;
+
+            const post = await Post.findById(id);
+
+            if (!post) {
+                return res.status(404).json({ msg: 'Post not found' });
+            }
+
+            if (post.user.toString() !== req.user.id) {
+                return res.status(401).json({ msg: 'User not authorized to delete this post' });
+            }
+
+            await post.deleteOne();
+
+            res.status(200).json({ msg: 'Post deleted successfully' });
+        } catch (error) {
+            console.error(error.message);
+
+            if (error.kind === 'ObjectId') {
+                return res.status(400).json({ msg: 'Invalid post ID' });
+            }
+
+            res.status(500).json({ msg: 'Server error' });
+        }
+    }
+);
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
