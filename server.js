@@ -1,6 +1,8 @@
 const express = require('express');
 const { check, validationResult } = require('express-validator');
 const connectDB = require('./config/db');
+const Post = require('./models/Post'); 
+const { authMiddleware } = require('./middleware/auth'); 
 const auth = require('./middleware/auth');
 const User = require('./models/User');
 const bcrypt = require('bcryptjs');
@@ -122,6 +124,40 @@ app.post(
         } catch (err) {
             console.error(err.message);
             res.status(500).send('Server error');
+        }
+    }
+);
+
+app.post(
+    '/api/posts',
+    authMiddleware, 
+    [
+        check('title', 'Title is required').notEmpty(),
+        check('body', 'Body is required').notEmpty(),
+    ],
+    async (req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        try {
+            
+            const { title, body } = req.body;
+            const user = req.user.id; 
+
+            const post = new Post({
+                user,
+                title,
+                body,
+            });
+
+            const savedPost = await post.save();
+
+            res.status(201).json(savedPost);
+        } catch (error) {
+            console.error(error.message);
+            res.status(500).json({ msg: 'Server error' });
         }
     }
 );
